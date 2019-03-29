@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
+
+    <TextView
+
+        android:shadowColor="@color/colorAccent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@android:dimen/notification_large_icon_height"
+        android:textColor="#000000"
+        android:text="Wearables are interesting meadium of learning. earable technology has a variety of applications which grows as the field itself expands. It appears prominently in consumer electronics with the popularization of the smartwatch and activity tracker. Apart from commercial uses, wearable technology is being incorporated into navigation systems, advanced textiles. Wearables are interesting meadium of learning. earable technology has a variety of applications which grows as the field itself expands. It appears prominently in consumer electronics with the popularization of the smartwatch and activity tracker. Apart from commercial uses, wearable technology is being incorporated into navigation systems, advanced textiles "
+        />
+
+    <TextView
+        android:id="@+id/answer"
+        android:textColor="#000000"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="there"
+        />
+
+    <SeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp" />
+
+    <EditText
+
+        android:id="@+id/textbox"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"
+        android:hint="Take Notes..."
+        android:backgroundTintMode="src_atop"
+        />
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:onClick="Save"
+        android:text="Save"
+        android:background="#81D8D0"
+        android:textColorHighlight="#D3D3D3"
+        />
+
+</LinearLayout>
