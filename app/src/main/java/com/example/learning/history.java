@@ -5,6 +5,12 @@ import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
+import com.example.learning.MainActivity;
+import android.widget.ListView;
+
+import java.io.File;
 
 public class history extends AppCompatActivity {
     @Override
@@ -13,6 +19,9 @@ public class history extends AppCompatActivity {
         super.onCreate(saveInstanceState);
         setContentView(R.layout.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ListView txt = (ListView) findViewById(R.id.savedNotes1);
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, MainActivity.addArray);
+        txt.setAdapter(adapter);
     }
     @Override
     public  boolean onCreateOptionsMenu(Menu menu)
@@ -32,5 +41,11 @@ public class history extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    public void FileExists()
+    {
+        File file=getBaseContext().getFileStreamPath("notes.txt");
+        String s=((File) file).getAbsolutePath();
+        Toast.makeText(this, s,Toast.LENGTH_LONG).show();
     }
 }

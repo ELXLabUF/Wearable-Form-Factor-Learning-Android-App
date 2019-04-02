@@ -21,20 +21,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
     private EditText txtEditor;
     private Toolbar toolbar;
-    //Firebase fb;
     TextView txt;
     SeekBar seekBar;
     Handler handler;
     Runnable runnable;
     MediaPlayer mp;
+    public static ArrayList<String> addArray=new ArrayList<String>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         remoteConfig.setConfigSettings(new FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(true).build());
         HashMap<String, Object> defaults=new HashMap<>();
         txt=(TextView)findViewById(R.id.answer);
-        defaults.put("answer","there");
+        defaults.put("answer","We are here to help!");
         remoteConfig.setDefaults(defaults);
 
         final Task<Void> fetch=remoteConfig.fetch(0);
@@ -52,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(Void aVoid) {
                 remoteConfig.activateFetched();
                 updateText();
-            }
-        });
 
+    }
+});
         setContentView(R.layout.activity_main);
         //toolbar=(Toolbar)findViewById(R.id.history);
         //setSupportActionBar(toolbar);
@@ -96,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
         String max =(String) remoteConfig.getString("answer");
         txt.setText(max);
     }
-
 
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -147,35 +150,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*//Play audio on play button click
     public void Playaudio(View view)
     {
         //set up MediaPlayer
         mp = MediaPlayer.create(MainActivity.this, R.raw.audio);
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-        //if(mp.isPlaying()){
-        //    mp.seekTo(0);
-        //}
-        //else
-        //{
             mp.start();
             seekBar.setMax(mp.getDuration());
-        //}
-        /*try {
-            //mp.setDataSource(path + File.separator + fileName);
-            Toast.makeText(this, "Audio started 1", Toast.LENGTH_LONG).show();
-            mp.setDataSource("C:\\Users\\nehar\\AndroidStudioProjects\\Learning\\Audio");
-            Toast.makeText(this, "Audio started 2", Toast.LENGTH_LONG).show();
-            mp.prepare();
-            mp.start();
-            Toast.makeText(this, "Audio started 3", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-    }
+    }*/
+    //Method to save the notes taken and ands the note taken to the array which reflects the items into listview of history tab
     public void Save(View view) throws FileNotFoundException {
-
         try{
+            String getAnswer=txt.getText().toString();
+            String s=new String();
+            s=s.concat(getAnswer+"\n");
+            //innerAddArray.add("1."+getAnswer);
+            String getInput=txtEditor.getText().toString();
+            //innerAddArray.add(getInput);
+            s=s.concat(getInput);
+            addArray.add(s);
             OutputStreamWriter out = new OutputStreamWriter(openFileOutput("notes.txt",0));
             out.write(txtEditor.getText().toString());
             out.close();
@@ -187,13 +181,38 @@ public class MainActivity extends AppCompatActivity {
         }
         FileExists();
     }
-
-    public void FileExists()
+//Checks if the saved file exists and adds to array
+    public boolean FileExists()
     {
         File file=getBaseContext().getFileStreamPath("notes.txt");
         String s=((File) file).getAbsolutePath();
         Toast.makeText(this, s,Toast.LENGTH_LONG).show();
+        File file1= getBaseContext().getFileStreamPath("notes.txt");
+        return file1.exists();
     }
-
-
+/*Opens the saved file
+    public void Open(String fileName) {
+        String content = "";
+        if (FileExists()) {
+            try {
+                InputStream in = openFileInput(fileName);
+                if ( in != null) {
+                    InputStreamReader tmp = new InputStreamReader( in );
+                    BufferedReader reader = new BufferedReader(tmp);
+                    String str;
+                    StringBuilder buf = new StringBuilder();
+                    while ((str = reader.readLine()) != null) {
+                        buf.append(str + "\n");
+                    } in .close();
+                    content = buf.toString();
+                    Toast.makeText(this, content,Toast.LENGTH_LONG).show();
+                }
+            } catch (java.io.FileNotFoundException e) {} catch (Throwable t) {
+                Toast.makeText(this, "Exception: " + t.toString(), Toast.LENGTH_LONG).show();
+            }
+        }
+        txt=(TextView)findViewById(R.id.answer1);
+        txt.setText(content);
+        //return content;
+    }*/
 }
