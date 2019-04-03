@@ -9,8 +9,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import com.example.learning.MainActivity;
 import android.widget.ListView;
-
+import android.text.method.ScrollingMovementMethod;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import android.widget.TextView;
 
 public class history extends AppCompatActivity {
     @Override
@@ -19,9 +25,30 @@ public class history extends AppCompatActivity {
         super.onCreate(saveInstanceState);
         setContentView(R.layout.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ListView txt = (ListView) findViewById(R.id.savedNotes1);
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, MainActivity.addArray);
-        txt.setAdapter(adapter);
+        FileInputStream fis=null;
+        //ListView txt = (ListView) findViewById(R.id.savedNotes1);
+        TextView txt_notes = (TextView) findViewById(R.id.savedNotes);
+        txt_notes.setMovementMethod(new ScrollingMovementMethod());
+        try{ fis = openFileInput("notes.txt");
+            InputStreamReader isr=new InputStreamReader(fis);
+            BufferedReader br=new BufferedReader(isr);
+            StringBuilder sb=new StringBuilder();
+            String text;
+
+            while ((text=br.readLine())!=null){
+                sb.append(text).append("\n");
+            }
+            //txt.setText(sb.toString());
+            txt_notes.setText(sb.toString());
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //ListView txt = (ListView) findViewById(R.id.savedNotes1);
+        //ArrayAdapter<String> adapter=new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, MainActivity.addArray);
+        //txt.setAdapter(adapter);
     }
     @Override
     public  boolean onCreateOptionsMenu(Menu menu)

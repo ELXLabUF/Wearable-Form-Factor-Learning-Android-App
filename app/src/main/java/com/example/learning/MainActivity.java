@@ -21,6 +21,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText txtEditor;
     private Toolbar toolbar;
     TextView txt;
+    TextView txt_topic;
     SeekBar seekBar;
     Handler handler;
     Runnable runnable;
@@ -42,11 +46,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //fb.initializeApp(MainActivity.this);
-        //database = FirebaseDatabase.getInstance();
         remoteConfig.setConfigSettings(new FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(true).build());
         HashMap<String, Object> defaults=new HashMap<>();
         txt=(TextView)findViewById(R.id.answer);
+        txt_topic=(TextView)findViewById(R.id.topic);
+        txtEditor=(EditText)findViewById(R.id.textbox);
         defaults.put("answer","We are here to help!");
         remoteConfig.setDefaults(defaults);
 
@@ -99,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
         txt=(TextView)findViewById(R.id.answer);
         String max =(String) remoteConfig.getString("answer");
         txt.setText(max);
+        txt_topic=(TextView)findViewById(R.id.topic);
+        String max1 =(String) remoteConfig.getString("topic");
+        txt_topic.setText(max1);
     }
 
     public boolean onCreateOptionsMenu(Menu menu)
@@ -161,32 +168,61 @@ public class MainActivity extends AppCompatActivity {
     }*/
     //Method to save the notes taken and ands the note taken to the array which reflects the items into listview of history tab
     public void Save(View view) throws FileNotFoundException {
+        FileOutputStream out=null;
+        OutputStreamWriter outStreamWriter=null;
         try{
+            String getTopic=txt_topic.getText().toString();
             String getAnswer=txt.getText().toString();
             String s=new String();
+            s=s.concat(getTopic+"\n");
             s=s.concat(getAnswer+"\n");
-            //innerAddArray.add("1."+getAnswer);
+            s=s.concat("Note:");
             String getInput=txtEditor.getText().toString();
-            //innerAddArray.add(getInput);
-            s=s.concat(getInput);
+            s=s.concat(getInput+"\n"+"\n");
             addArray.add(s);
-            OutputStreamWriter out = new OutputStreamWriter(openFileOutput("notes.txt",0));
-            out.write(txtEditor.getText().toString());
+            //out = openFileOutput("notes.txt", MODE_PRIVATE);
+            Toast.makeText(this, "file created!",Toast.LENGTH_LONG).show();
+            //FileOutputStream fos = openFileOutput("notes.txt",MODE_PRIVATE);
+            out = openFileOutput("notes.txt",MODE_APPEND);
+            out.write(s.getBytes());
             out.close();
-            Toast.makeText(this, "Notes Saved", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "Notes Saved", Toast.LENGTH_LONG).show();
         }
         catch (Throwable t)
         {
             Toast.makeText(this, "Exception:"+t.toString(), Toast.LENGTH_LONG).show();
         }
-        FileExists();
+            FileExists();
     }
+    /*
+    //loads the the answer and note in the Edit Text view
+    public void load(View v)
+    {
+        FileInputStream fis=null;
+        txtEditor.setText("loading");
+            try{ fis = openFileInput("notes.txt");
+                InputStreamReader isr=new InputStreamReader(fis);
+                BufferedReader br=new BufferedReader(isr);
+                StringBuilder sb=new StringBuilder();
+                String text;
+                txtEditor.setText("loading");
+                while ((text=br.readLine())!=null){
+                    sb.append(text).append("\n");
+                }
+                txtEditor.setText(sb.toString());
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }*/
 //Checks if the saved file exists and adds to array
     public boolean FileExists()
     {
         File file=getBaseContext().getFileStreamPath("notes.txt");
         String s=((File) file).getAbsolutePath();
-        Toast.makeText(this, s,Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, s,Toast.LENGTH_LONG).show();
         File file1= getBaseContext().getFileStreamPath("notes.txt");
         return file1.exists();
     }
