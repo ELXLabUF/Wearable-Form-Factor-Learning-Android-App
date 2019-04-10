@@ -1,15 +1,14 @@
 package com.example.learning;
-//package com.google.firbase;
+
 import android.content.Intent;
+import android.content.res.Resources;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.media.MediaPlayer;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -18,22 +17,25 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.Query;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
+    DatabaseReference databaseRef;
     private EditText txtEditor;
     private Toolbar toolbar;
     TextView txt;
@@ -41,12 +43,17 @@ public class MainActivity extends AppCompatActivity {
     SeekBar seekBar;
     Handler handler;
     Runnable runnable;
-    MediaPlayer mp;
+    MediaPlayer mp=new MediaPlayer();
+    String g;
+    int audioFile;
+    public static DataSnapshot dbSnapShot ;
     public static ArrayList<String> addArray=new ArrayList<String>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         remoteConfig.setConfigSettings(new FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(true).build());
+        //databaseRef=FirebaseDatabase.getInstance().getReference("database");
         HashMap<String, Object> defaults=new HashMap<>();
         txt=(TextView)findViewById(R.id.answer);
         txt_topic=(TextView)findViewById(R.id.topic);
@@ -59,15 +66,45 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 remoteConfig.activateFetched();
-                updateText();
+                //updateText();
+                //to update the topic according to the firebase remote config value
+                txt_topic=(TextView)findViewById(R.id.topic);
+                String max1 =(String) remoteConfig.getString("topic");
+                txt_topic.setText(max1);
+                //query for fetching answer based on topic// equivalent sql query: SELECT * FROM database WHERE topic="xyz"
 
+                Query query=FirebaseDatabase.getInstance().getReference("database").orderByChild("topic").equalTo(max1);
+                //value event listener to data changed events
+                query.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                dbSnapShot=snapshot;
+                                database db = snapshot.getValue(database.class);
+                                audioFile=db.getAudio();//to fetch audio dynmically based on db audio value
+                                Playaudio(audioFile);
+                                //mp = MediaPlayer.create(MainActivity.this, audioFile);
+                                g = db.getAnswer();
+                            }
+                            txt=(TextView)findViewById(R.id.answer);
+                            txt.setText(g);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d("DBVALUE","ERROR in database connection");
+                    }
+                });
     }
 });
         setContentView(R.layout.activity_main);
-        //toolbar=(Toolbar)findViewById(R.id.history);
-        //setSupportActionBar(toolbar);
-        handler=new Handler();
+        handler = new Handler();
         seekBar=(SeekBar) findViewById(R.id.seekbar);
+        int o=R.raw.audio;
+        int u=R.raw.tomato;
+        int taj=R.raw.taj_mahal;
+/*
         mp = MediaPlayer.create(MainActivity.this, R.raw.audio);
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -78,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 mp.start();
             }
         });
-
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
             @Override
@@ -95,18 +131,52 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar){
             }
         });
+*/
         txtEditor=(EditText)findViewById(R.id.textbox);
-
     }
+
+    //to update the topic according to the firebase remote config value
     public void updateText()
     {
-        txt=(TextView)findViewById(R.id.answer);
-        String max =(String) remoteConfig.getString("answer");
-        txt.setText(max);
+        //txt=(TextView)findViewById(R.id.answer);
+        //String max =(String) remoteConfig.getString("answer");
+        //txt.setText(max);
         txt_topic=(TextView)findViewById(R.id.topic);
         String max1 =(String) remoteConfig.getString("topic");
         txt_topic.setText(max1);
     }
+    public void Playaudio(int audioFile)
+    {
+        //mp = MediaPlayer.create(MainActivity.this, R.raw.audio);
+        mp = MediaPlayer.create(MainActivity.this, audioFile);
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                seekBar.setMax(mp.getDuration());
+                playCycle();
+                mp.start();
+            }
+        });
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+        {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b){
+                if(b)
+                {
+                    mp.seekTo(progress);
+                }
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar){
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar){
+            }
+        });
+
+    }
+
 
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -156,8 +226,8 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(runnable, 1000);
         }
     }
-
-    /*//Play audio on play button click
+    /*
+    //Play audio on play button click
     public void Playaudio(View view)
     {
         //set up MediaPlayer
@@ -166,6 +236,17 @@ public class MainActivity extends AppCompatActivity {
             mp.start();
             seekBar.setMax(mp.getDuration());
     }*/
+
+    public void pause(View view)
+    {
+        if(mp.isPlaying()) {
+            mp.pause();
+        }
+        else
+            mp.start();
+
+    }
+
     //Method to save the notes taken and ands the note taken to the array which reflects the items into listview of history tab
     public void Save(View view) throws FileNotFoundException {
         FileOutputStream out=null;
@@ -183,10 +264,10 @@ public class MainActivity extends AppCompatActivity {
             //out = openFileOutput("notes.txt", MODE_PRIVATE);
             Toast.makeText(this, "file created!",Toast.LENGTH_LONG).show();
             //FileOutputStream fos = openFileOutput("notes.txt",MODE_PRIVATE);
-            out = openFileOutput("notes.txt",MODE_APPEND);
+            out = openFileOutput("notes.txt",MODE_APPEND);//MODE_APPEND adds the string to the end of the file
             out.write(s.getBytes());
             out.close();
-            //Toast.makeText(this, "Notes Saved", Toast.LENGTH_LONG).show();
+            dbSnapShot.child("notes").getRef().setValue(getInput);
         }
         catch (Throwable t)
         {
@@ -226,29 +307,4 @@ public class MainActivity extends AppCompatActivity {
         File file1= getBaseContext().getFileStreamPath("notes.txt");
         return file1.exists();
     }
-/*Opens the saved file
-    public void Open(String fileName) {
-        String content = "";
-        if (FileExists()) {
-            try {
-                InputStream in = openFileInput(fileName);
-                if ( in != null) {
-                    InputStreamReader tmp = new InputStreamReader( in );
-                    BufferedReader reader = new BufferedReader(tmp);
-                    String str;
-                    StringBuilder buf = new StringBuilder();
-                    while ((str = reader.readLine()) != null) {
-                        buf.append(str + "\n");
-                    } in .close();
-                    content = buf.toString();
-                    Toast.makeText(this, content,Toast.LENGTH_LONG).show();
-                }
-            } catch (java.io.FileNotFoundException e) {} catch (Throwable t) {
-                Toast.makeText(this, "Exception: " + t.toString(), Toast.LENGTH_LONG).show();
-            }
-        }
-        txt=(TextView)findViewById(R.id.answer1);
-        txt.setText(content);
-        //return content;
-    }*/
 }
