@@ -1,11 +1,13 @@
 package com.example.learning;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.MenuItem;
 import android.view.View;
 import android.media.MediaPlayer;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         //databaseRef=FirebaseDatabase.getInstance().getReference("database");
         HashMap<String, Object> defaults=new HashMap<>();
         txt=(TextView)findViewById(R.id.answer);
+
         txt_topic=(TextView)findViewById(R.id.topic);
         txtEditor=(EditText)findViewById(R.id.textbox);
         defaults.put("answer","We are here to help!");
@@ -79,16 +82,26 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
-                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren())
+                            {
                                 dbSnapShot=snapshot;
                                 database db = snapshot.getValue(database.class);
-                                audioFile=db.getAudio();//to fetch audio dynmically based on db audio value
-                                Playaudio(audioFile);
                                 //mp = MediaPlayer.create(MainActivity.this, audioFile);
+                                //String str=db.getTopic();
                                 g = db.getAnswer();
+                                //audioFile=db.getAudio();
+                               String audioFromBD=db.getAudio();//to fetch audio dynmically based on db audio value
+                                if(audioFromBD.isEmpty() || audioFromBD==" ") //Checks if there is an audio key available in the database
+                                {
+                                    break;
+                                }
+                                audioFile=Integer.parseInt(audioFromBD);
+                                //audioFile=R.raw.audio;
+                                Playaudio(audioFile);
                             }
                             txt=(TextView)findViewById(R.id.answer);
                             txt.setText(g);
+                            txt.setMovementMethod(ScrollingMovementMethod.getInstance());
                         }
                     }
                     @Override
@@ -101,9 +114,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         handler = new Handler();
         seekBar=(SeekBar) findViewById(R.id.seekbar);
-        int o=R.raw.audio;
-        int u=R.raw.tomato;
-        int taj=R.raw.taj_mahal;
+        //int audiofile=R.raw.audio;
+
 /*
         mp = MediaPlayer.create(MainActivity.this, R.raw.audio);
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -262,10 +274,12 @@ public class MainActivity extends AppCompatActivity {
             s=s.concat(getInput+"\n"+"\n");
             addArray.add(s);
             //out = openFileOutput("notes.txt", MODE_PRIVATE);
-            Toast.makeText(this, "file created!",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Answer is saved!",Toast.LENGTH_LONG).show();
             //FileOutputStream fos = openFileOutput("notes.txt",MODE_PRIVATE);
             out = openFileOutput("notes.txt",MODE_APPEND);//MODE_APPEND adds the string to the end of the file
             out.write(s.getBytes());
+            //String f=MainActivity.this.getFilesDir().getAbsolutePath();//getAbsoluteFile();
+            //Toast.makeText(this,f ,Toast.LENGTH_LONG).show();
             out.close();
             dbSnapShot.child("notes").getRef().setValue(getInput);
         }

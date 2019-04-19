@@ -5,13 +5,13 @@ public class database {
     String topic;
     String answer;
     String notes;
-    int audio;
+    String audio;
 
     public database(){
 
     }
 
-    public database(int id, String topic, String answer) {
+    public database(int id, String topic, String answer, String audio) {
         this.id=id;
         this.topic=topic;
         this.answer=answer;
@@ -28,7 +28,7 @@ public class database {
     public String getNotes(){
         return notes;
     }
-    public int getAudio(){
+    public String getAudio(){
         return audio;
     }
 }
