@@ -281,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
             //String f=MainActivity.this.getFilesDir().getAbsolutePath();//getAbsoluteFile();
             //Toast.makeText(this,f ,Toast.LENGTH_LONG).show();
             out.close();
+            txtEditor.setText("");
             dbSnapShot.child("notes").getRef().setValue(getInput);
         }
         catch (Throwable t)
