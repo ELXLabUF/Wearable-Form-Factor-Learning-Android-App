@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     int audioFile;
     public static DataSnapshot dbSnapShot ;
     public static ArrayList<String> addArray=new ArrayList<String>();
+     ArrayList<String> speech=new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +73,16 @@ public class MainActivity extends AppCompatActivity {
                 //updateText();
                 //to update the topic according to the firebase remote config value
                 txt_topic=(TextView)findViewById(R.id.topic);
+                /*//String max1 =(String) remoteConfig.getString("topic");
+                //txt_topic.setText(max1);*/
+                //fetching data based on key instead of topic
                 String max1 =(String) remoteConfig.getString("topic");
-                txt_topic.setText(max1);
+
                 //query for fetching answer based on topic// equivalent sql query: SELECT * FROM database WHERE topic="xyz"
 
-                Query query=FirebaseDatabase.getInstance().getReference("database").orderByChild("topic").equalTo(max1);
+                //Query query=FirebaseDatabase.getInstance().getReference("database").orderByChild("topic").equalTo(max1);
+                //querry to fetch answer based on key
+                Query query=FirebaseDatabase.getInstance().getReference("database").orderByChild("key").equalTo(max1);
                 //value event listener to data changed events
                 query.addValueEventListener(new ValueEventListener() {
                     @Override
@@ -88,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                                 database db = snapshot.getValue(database.class);
                                 //mp = MediaPlayer.create(MainActivity.this, audioFile);
                                 //String str=db.getTopic();
+                                txt_topic.setText(db.getTopic());
                                 g = db.getAnswer();
                                 //audioFile=db.getAudio();
                                String audioFromBD=db.getAudio();//to fetch audio dynmically based on db audio value
@@ -114,7 +121,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         handler = new Handler();
         seekBar=(SeekBar) findViewById(R.id.seekbar);
-        //int audiofile=R.raw.audio;
+        //can add audio file code to get the id of the audio file
+        /*int audiofile2= R.raw.speech2;
+        speech.add(String.valueOf(audiofile2));*/
+
 
 /*
         mp = MediaPlayer.create(MainActivity.this, R.raw.audio);
@@ -274,12 +284,12 @@ public class MainActivity extends AppCompatActivity {
             s=s.concat(getInput+"\n"+"\n");
             addArray.add(s);
             //out = openFileOutput("notes.txt", MODE_PRIVATE);
-            Toast.makeText(this, "Answer is saved!",Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "Answer is saved!",Toast.LENGTH_LONG).show();
             //FileOutputStream fos = openFileOutput("notes.txt",MODE_PRIVATE);
             out = openFileOutput("notes.txt",MODE_APPEND);//MODE_APPEND adds the string to the end of the file
             out.write(s.getBytes());
-            //String f=MainActivity.this.getFilesDir().getAbsolutePath();//getAbsoluteFile();
-            //Toast.makeText(this,f ,Toast.LENGTH_LONG).show();
+            String stro=getCacheDir().toString();
+            Toast.makeText(this,stro ,Toast.LENGTH_LONG).show();
             out.close();
             txtEditor.setText("");
             dbSnapShot.child("notes").getRef().setValue(getInput);

@@ -2,6 +2,7 @@ package com.example.learning;
 
 public class database {
     int id;
+    String key;
     String topic;
     String answer;
     String notes;
@@ -11,8 +12,9 @@ public class database {
 
     }
 
-    public database(int id, String topic, String answer, String audio) {
+    public database(int id, String key, String topic, String answer, String audio) {
         this.id=id;
+        this.key=key;
         this.topic=topic;
         this.answer=answer;
         this.notes=notes;
@@ -20,6 +22,9 @@ public class database {
     }
     public int getId(){
         return id;
+    }
+    public String getKey(){
+        return key;
     }
     public String getTopic(){
         return topic;
